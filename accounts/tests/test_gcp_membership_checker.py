@@ -30,6 +30,9 @@ logging.basicConfig(
 )
 
 
+DATABASE_ALIAS = 'default'
+
+
 class TestPublicDatasetServiceAccount(TestCase):
     def setUp(self):
         test_dataset_mapping = {
@@ -76,7 +79,7 @@ class TestPublicDatasetServiceAccount(TestCase):
         uad_123 = UserAuthorizedDatasets(nih_user=self.nih_user, authorized_dataset=self.auth_dataset_123)
         uad_123.save()
 
-        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping)
+        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping, DATABASE_ALIAS)
         result = gmc.process()
 
         # The service account should have been skipped, as it is linked to a public dataset
@@ -136,7 +139,7 @@ class TestUnauthorizedUser(TestCase):
         uad_123 = UserAuthorizedDatasets(nih_user=self.nih_user, authorized_dataset=self.auth_dataset_123)
         uad_123.save()
 
-        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping)
+        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping, DATABASE_ALIAS)
         result = gmc.process()
 
         # The service account should not have been skipped, as it is linked to a protected dataset
@@ -204,7 +207,7 @@ class TestPublicAndProtectedDataset(TestCase):
         uad_456 = UserAuthorizedDatasets(nih_user=self.nih_user, authorized_dataset=self.auth_dataset_456)
         uad_456.save()
 
-        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping)
+        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping, DATABASE_ALIAS)
         result = gmc.process()
 
         # Account 'abc_123' should have been skipped, as it is associated to a public dataset
@@ -217,7 +220,7 @@ class TestPublicAndProtectedDataset(TestCase):
         uad_123 = UserAuthorizedDatasets(nih_user=self.nih_user, authorized_dataset=self.auth_dataset_123)
         uad_123.save()
 
-        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping)
+        gmc = GoogleProjectMembershipChecker(self.dataset_acl_mapping, DATABASE_ALIAS)
         result = gmc.process()
 
         self.assertEquals(len(result.skipped_service_accounts), 1)
